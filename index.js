@@ -39,6 +39,14 @@ async function main() {
     );
   `);
 
+  // create 'sync' table
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS sync (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      count INTEGER
+    );
+  `);
+
   // clear the 'users' table
   await db.run("DELETE FROM users");
 
@@ -47,6 +55,10 @@ async function main() {
 
   // clear the 'points' table
   await db.run("DELETE FROM points");
+
+  // add one data to 'sync' table
+  await db.run("DELETE FROM sync");
+  await db.run("INSERT INTO sync (count) VALUES (0)");
 
   const app = express();
   const server = createServer(app);
@@ -62,6 +74,7 @@ async function main() {
 
   let playerjoin = true;
   let points = 3;
+  let syncInterval = false;
 
   io.on("connection", async (socket) => {
     await db.each("SELECT user FROM users", (_err, row) => {
@@ -182,7 +195,10 @@ async function main() {
         }
       );
     });
+    let showstatusTimeout;
+    let hidestatusTimeout;
     socket.on("loop", async () => {
+      syncInterval = false;
       let breakloop = false;
       await db.each("SELECT user, point FROM points", async (_err, row) => {
         if (row.point == 0) {
@@ -221,7 +237,7 @@ async function main() {
             );
           }, 50);
         }
-        setTimeout(async () => {
+        showstatusTimeout = setTimeout(async () => {
           await db.each("SELECT user FROM users", async (_err, row1) => {
             await db.each(
               "SELECT click FROM clicks WHERE user = ?",
@@ -244,10 +260,27 @@ async function main() {
           });
         }, 100);
         socket.emit("countdown", 5);
-        setTimeout(async () => {
-          socket.emit("hidestatus");
-          await db.run("UPDATE clicks SET click = 0");
-          socket.emit("loop");
+        hidestatusTimeout = setTimeout(async () => {
+          await db.run("UPDATE sync SET count = count + 1");
+          await db.each("SELECT count FROM sync", async (_err, row) => {
+            await db.each(
+              "SELECT COUNT(*) AS usercount FROM users",
+              async (_err, userRow) => {
+                if (row.count >= userRow.usercount) {
+                  syncInterval = true;
+                }
+              }
+            );
+          });
+          const interval = setInterval(async () => {
+            if (syncInterval) {
+              socket.emit("hidestatus");
+              await db.run("UPDATE clicks SET click = 0");
+              await db.run("UPDATE sync SET count = 0");
+              socket.emit("loop");
+              clearInterval(interval);
+            }
+          }, 100);
         }, 5000);
       }, 5000);
     });
@@ -255,6 +288,8 @@ async function main() {
       await db.run("UPDATE clicks SET click = 1 WHERE user = ?", name);
     });
     socket.on("endgame", async () => {
+      clearTimeout(showstatusTimeout);
+      clearTimeout(hidestatusTimeout);
       await db.run("DELETE FROM points");
       await db.run("DELETE FROM clicks");
       io.emit("endgame");

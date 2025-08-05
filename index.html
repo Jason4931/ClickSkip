@@ -474,6 +474,11 @@
         const itemClone = item.cloneNode(true);
         if (itemClone instanceof Element) {
           itemClone.setAttribute("id", "player-row-status-" + name);
+          const firstCell = itemClone.querySelector("td");
+          if (firstCell) {
+            firstCell.style.paddingTop = "14px";
+            firstCell.style.paddingBottom = "14px";
+          }
         }
         playerstatus.appendChild(itemClone);
         //message tagname
@@ -636,13 +641,14 @@
           }, 500);
         }
       });
+      let countdownTimeout;
       socket.on("countdown", (number) => {
         if (playing) {
           //countdown
           noexecmsg.classList.remove("hidden");
           noexecmsg.textContent = number;
           for (let i = number + 1; i > 1; i--) {
-            setTimeout(() => {
+            countdownTimeout = setTimeout(() => {
               noexecmsg.textContent = i - 1;
             }, 1000 * (number - i + 1));
           }
@@ -659,13 +665,17 @@
           showw.style.display = "block";
           if (status == 1) {
             showw.textContent = "clicked";
+            showw.style.color = "darkgreen";
+            showw.style.fontWeight = "bold";
           } else if (status == 0) {
             showw.textContent = "skip";
+            showw.style.color = "darkred";
+            showw.style.fontWeight = "normal";
           }
           //show points
           const showpoint = document.getElementById("player-points-" + name);
           showpoint.style.display = "block";
-          showpoint.textContent = point;
+          showpoint.textContent = Math.floor(point);
         }
       });
       socket.on("hidestatus", () => {
@@ -689,6 +699,7 @@
       });
       //result
       socket.on("result", (name) => {
+        clearTimeout(countdownTimeout);
         playing = false;
         game.style.transition = "all 0.5s, transform 0s";
         game.style.opacity = "0";
@@ -702,6 +713,7 @@
       });
       //end game
       socket.on("endgame", () => {
+        clearTimeout(countdownTimeout);
         playing = false;
         socket.emit("togglejoin", "on");
         if (currentPlayerName != "") {
