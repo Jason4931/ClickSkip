@@ -1,726 +1,765 @@
 <!DOCTYPE html>
 <html>
-
-<head style="overflow-x: hidden;">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <head style="overflow-x: hidden">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>Click & Skip</title>
     <style>
-        body {
-            min-width: fit-content;
-            overflow-x: hidden;
-            overflow-y: hidden;
-            margin: 0;
-            padding-bottom: 3rem;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-        td {
-            background-color: none;
-            transition: all 0.25s;
-        }
-        #players>tr>td:hover {
-            background-color: #f0f0f0;
-        }
-        #playerstatus>tr>td:hover {
-            background-color: #e0e0e0;
-        }
+      body {
+        min-width: fit-content;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        margin: 0;
+        padding-bottom: 3rem;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+      }
+      td {
+        background-color: none;
+        transition: all 0.25s;
+      }
+      #players > tr > td:hover {
+        background-color: #f0f0f0;
+      }
+      #playerstatus > tr > td:hover {
+        background-color: #e0e0e0;
+      }
+      #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 200px;
+        background-color: #f0f0f0;
+        padding: 20px;
+        overflow-y: auto;
+        z-index: 100;
+        transition: all 0.5s, transform 0s;
+        transform: translate(0);
+      }
+      #toggleSidebar {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        padding: 0.5rem 1rem;
+        background-color: #222;
+        color: #fff;
+        border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        z-index: 1000;
+        transition: all 0.5s, transform 0s;
+        transform: translateX(-200%);
+      }
+      #toggleSidebar:hover {
+        transform: scale(1.05);
+      }
+      #sidebarcover {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 240px;
+        background-color: #f0f0f0;
+        z-index: 900;
+        transform: translateX(-100cm);
+        opacity: 0;
+        transition: all 0.5s, transform 0s;
+      }
+      .sidebar-open {
+        transform: translateX(0) !important;
+      }
+      #chatform {
+        height: 101px;
+      }
+      #chat {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 200px;
+        background-color: #f0f0f0;
+        padding: 20px;
+        z-index: 100;
+        transition: all 0.5s, transform 0s;
+        transform: translate(0);
+        display: flex;
+        flex-direction: column;
+      }
+      #toggleChat {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        padding: 0.5rem 1rem;
+        background-color: #222;
+        color: #fff;
+        border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        z-index: 1000;
+        transition: all 0.5s, transform 0s;
+        transform: translateX(200%);
+      }
+      #toggleChat:hover {
+        transform: scale(1.05);
+      }
+      #name {
+        text-align: center;
+        padding: 20px;
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        transition: all 0.5s, transform 0s;
+      }
+      #waitingroom {
+        text-align: center;
+        padding: 20px;
+        transform: translate(0);
+        transition: all 0.5s, transform 0s;
+      }
+      #game {
+        text-align: center;
+        position: fixed;
+        top: 50%;
+        padding: 20px;
+        width: 100%;
+        transform: translate(0, -50%);
+        transition: all 0.5s, transform 0s;
+      }
+      #message {
+        position: fixed;
+        bottom: 65px;
+        padding: 10px;
+        border-radius: 10px;
+        width: 176px;
+      }
+      #send {
+        position: fixed;
+        bottom: 20px;
+        width: 200px;
+        padding: 0.5rem 2rem;
+        background-color: #222;
+        color: #fff;
+        border: none;
+        border-radius: 0.25rem;
+        font-size: large;
+        transition: all 0.5s;
+      }
+      #send:hover {
+        transform: scale(1.05);
+      }
+      #messages {
+        list-style-type: none;
+        margin: 10px 0;
+        padding: 0;
+        flex-grow: 1;
+        height: 100%;
+        overflow-y: hidden;
+        overflow-x: hidden;
+        word-wrap: break-word;
+      }
+      #messages > li {
+        background: #fff;
+        margin: 5px 0;
+        border: #222;
+        border-radius: 0.25rem;
+        padding: 0.5rem 1rem;
+        word-wrap: break-word;
+      }
+      #username {
+        position: fixed;
+        top: 50%;
+        transform: translate(-50%, -125%);
+        padding: 10px;
+        border-radius: 10px;
+        width: 300px;
+      }
+      #enter {
+        position: fixed;
+        top: 50%;
+        transform: translate(-50%, 25%);
+        padding: 0.5rem 2rem;
+        background-color: #222;
+        color: #fff;
+        border: none;
+        border-radius: 0.25rem;
+        font-size: large;
+        transition: all 0.5s;
+      }
+      #enter:hover {
+        transform: translate(-50%, 25%) scale(1.05);
+      }
+      #start {
+        position: fixed;
+        bottom: 1cm;
+        left: 50%;
+        transform: translate(-50%, 0);
+        padding: 0.5rem 2rem;
+        background-color: #222;
+        color: #fff;
+        border: none;
+        border-radius: 0.25rem;
+        font-size: large;
+        transition: all 0.5s, transform 0s;
+      }
+      #start:hover {
+        transform: translateX(-50%) scale(1.05);
+      }
+      #clickbtn {
+        background-color: #f00;
+        position: fixed;
+        top: 50%;
+        border: none;
+        color: white;
+        padding: 80px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 50%;
+        box-shadow: 0px 10px 0px #a00, 0px 8px 15px rgba(0, 0, 0, 0.2);
+        transform: translate(-60%, -50%);
+        transition: all 0.1s ease;
+      }
+      #clickbtn:active {
+        transform: translate(-60%, -50%) translateY(7px);
+        box-shadow: 0px 3px 0px #a00, 0px 8px 15px rgba(0, 0, 0, 0.3);
+      }
+      .hidden {
+        transform: translateY(-100cm) !important;
+        opacity: 0 !important;
+      }
+      #players {
+        margin: 0 auto;
+        width: 10cm;
+        transition: all 0.5s;
+      }
+      #playerstatus {
+        width: 90%;
+        table-layout: fixed;
+        transition: all 0.5s;
+      }
+      #how {
+        opacity: 1;
+        transition: all 0.5s;
+      }
+      #rules {
+        opacity: 1;
+        transition: all 0.5s;
+      }
+      #status {
+        position: fixed;
+        top: 20px;
+      }
+      #noexec {
+        text-align: center;
+        opacity: 1;
+        transform: translate(0, 0);
+        transition: all 0.5s, transform 0s;
+      }
+      #result {
+        text-align: center;
+        position: fixed;
+        top: 50%;
+        padding: 20px;
+        width: 100%;
+        transform: translate(0, -50%);
+        transition: all 0.5s, transform 0s;
+      }
+      @media (max-width: 1000px) {
         #sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            width: 200px;
-            background-color: #f0f0f0;
-            padding: 20px;
-            overflow-y: auto;
-            z-index: 100;
-            transition: all 0.5s, transform 0s;
-            transform: translate(0);
+          transform: translateX(-100%);
         }
-        #toggleSidebar {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            padding: 0.5rem 1rem;
-            background-color: #222;
-            color: #fff;
-            border: none;
-            border-radius: 0.25rem;
-            cursor: pointer;
-            z-index: 1000;
-            transition: all 0.5s, transform 0s;
-            transform: translateX(-200%);
-        }
-        #toggleSidebar:hover {
-            transform: scale(1.05);
-        }
-        #sidebarcover {
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            width: 240px;
-            background-color: #f0f0f0;
-            z-index: 900;
-            transform: translateX(-100cm);
-            opacity: 0;
-            transition: all 0.5s, transform 0s;
-        }
-        .sidebar-open {
-            transform: translateX(0) !important;
-        }
-        #chatform {
-            height: 101px;
+        #toggleSidebar,
+        #toggleChat {
+          transform: translateX(0);
         }
         #chat {
-            position: fixed;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: 200px;
-            background-color: #f0f0f0;
-            padding: 20px;
-            z-index: 100;
-            transition: all 0.5s, transform 0s;
-            transform: translate(0);
-            display: flex;
-            flex-direction: column;
-        }
-        #toggleChat {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            padding: 0.5rem 1rem;
-            background-color: #222;
-            color: #fff;
-            border: none;
-            border-radius: 0.25rem;
-            cursor: pointer;
-            z-index: 1000;
-            transition: all 0.5s, transform 0s;
-            transform: translateX(200%);
-        }
-        #toggleChat:hover {
-            transform: scale(1.05);
-        }
-        #name {
-            text-align: center;
-            padding: 20px;
-            position: fixed;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.5s, transform 0s;
-        }
-        #waitingroom {
-            text-align: center;
-            padding: 20px;
-            transform: translate(0);
-            transition: all 0.5s, transform 0s;
-        }
-        #game {
-            text-align: center;
-            position: fixed;
-            top: 50%;
-            padding: 20px;
-            width: 100%;
-            transform: translate(0, -50%);
-            transition: all 0.5s, transform 0s;
-        }
-        #message {
-            position: fixed;
-            bottom: 65px;
-            padding: 10px;
-            border-radius: 10px;
-            width: 176px;
-        }
-        #send {
-            position: fixed;
-            bottom: 20px;
-            width: 200px;
-            padding: 0.5rem 2rem;
-            background-color: #222;
-            color: #fff;
-            border: none;
-            border-radius: 0.25rem;
-            font-size: large;
-            transition: all 0.5s;
-        }
-        #send:hover {
-            transform: scale(1.05);
-        }
-        #messages {
-            list-style-type: none;
-            margin: 10px 0;
-            padding: 0;
-            flex-grow: 1;
-            height: 100%;
-            overflow-y: hidden;
-            overflow-x: hidden;
-            word-wrap: break-word;
-        }
-        #messages>li {
-            background: #fff;
-            margin: 5px 0;
-            border: #222;
-            border-radius: 0.25rem;
-            padding: 0.5rem 1rem;
-            word-wrap: break-word;
-        }
-        #username {
-            position: fixed;
-            top: 50%;
-            transform: translate(-50%, -125%);
-            padding: 10px;
-            border-radius: 10px;
-            width: 300px;
-        }
-        #enter {
-            position: fixed;
-            top: 50%;
-            transform: translate(-50%, 25%);
-            padding: 0.5rem 2rem;
-            background-color: #222;
-            color: #fff;
-            border: none;
-            border-radius: 0.25rem;
-            font-size: large;
-            transition: all 0.5s;
-        }
-        #enter:hover {
-            transform: translate(-50%, 25%) scale(1.05);
-        }
-        #start {
-            position: fixed;
-            bottom: 1cm;
-            left: 50%;
-            transform: translate(-50%, 0);
-            padding: 0.5rem 2rem;
-            background-color: #222;
-            color: #fff;
-            border: none;
-            border-radius: 0.25rem;
-            font-size: large;
-            transition: all 0.5s, transform 0s;
-        }
-        #start:hover {
-            transform: translateX(-50%) scale(1.05);
-        }
-        #clickbtn {
-            background-color: #f00;
-            position: fixed;
-            top: 50%;
-            border: none;
-            color: white;
-            padding: 80px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 50%;
-            box-shadow: 0px 10px 0px #a00, 0px 8px 15px rgba(0, 0, 0, 0.2);
-            transform: translate(-60%, -50%);
-            transition: all 0.1s ease;
-        }
-        #clickbtn:active {
-            transform: translate(-60%, -50%) translateY(7px);
-            box-shadow: 0px 3px 0px #a00, 0px 8px 15px rgba(0, 0, 0, 0.3);
-        }
-        .hidden {
-            transform: translateY(-100cm) !important;
-            opacity: 0 !important;
+          transform: translateX(100%);
         }
         #players {
-            margin: 0 auto;
-            width: 10cm;
-            transition: all 0.5s;
+          width: 64%;
         }
         #playerstatus {
-            width: 90%;
-            table-layout: fixed;
-            transition: all 0.5s;
+          margin-top: 34px;
         }
         #how {
-            opacity: 1;
-            transition: all 0.5s;
+          opacity: 0;
         }
-        #rules {
-            opacity: 1;
-            transition: all 0.5s;
+      }
+      @media (max-width: 768px) {
+        #players {
+          width: 100%;
         }
-        #status {
-            position: fixed;
-            top: 20px;
-        }
-        #noexec {
-            text-align: center;
-            opacity: 1;
-            transform: translate(0, 0);
-            transition: all 0.5s, transform 0s;
-        }
-        #result {
-            text-align: center;
-            position: fixed;
-            top: 50%;
-            padding: 20px;
-            width: 100%;
-            transform: translate(0, -50%);
-            transition: all 0.5s, transform 0s;
-        }
-        @media (max-width: 1000px) {
-            #sidebar {
-                transform: translateX(-100%);
-            }
-            #toggleSidebar, #toggleChat {
-                transform: translateX(0);
-            }
-            #chat {
-                transform: translateX(100%);
-            }
-            #players {
-                width: 64%;
-            }
-            #playerstatus {
-                margin-top: 34px;
-            }
-            #how {
-                opacity: 0;
-            }
-        }
-        @media (max-width: 768px) {
-            #players {
-                width: 100%;
-            }
-        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <p id="noexec" class="hidden"></p>
 
-    <button id="toggleSidebar" class="hidden"><img src="list.svg" alt="menu"></button>
+    <button id="toggleSidebar" class="hidden">
+      <img src="list.svg" alt="menu" />
+    </button>
     <div id="sidebarcover"></div>
     <div id="sidebar" class="hidden sidebar-open">
-        <div id="rules">
-            <b id="how">How to play the game:</b><br><br>
-            
-            Starting Points:
-            <ul>
-                <li>Each player begins the game with 3 points.</li>
-                <li>Every player has a button they can choose to press or skip in each round.</li>
-            </ul>
-            
-            Gameplay:
-            <ul>
-                <li>In each round, players must decide whether to click or skip their button.</li>
-                <li>If only one player clicks their button, that player loses 1 point.</li>
-                <li>If more than one player clicks their buttons in the same round, no points are lost for anyone.</li>
-                <li>If all players skip, nothing happens, and the points remain unchanged.</li>
-            </ul>
-            
-            Winning the Game:<br>
-            <b>The first player to reach 0 points wins the game.</b>
-        </div>
-        <div id="status" class="hidden">
-            <table id="playerstatus" border="1">
-            </table>
-        </div>
+      <div id="rules">
+        <b id="how">How to play the game:</b><br /><br />
+
+        Starting Points:
+        <ul>
+          <li>Each player begins the game with 3 points.</li>
+          <li>
+            Every player has a button they can choose to press or skip in each
+            round.
+          </li>
+          <li>
+            You can set the point by typing "Point (num)" (ex: "Point 5") in
+            chat before the game start.
+          </li>
+        </ul>
+
+        Gameplay:
+        <ul>
+          <li>
+            In each round, players must decide whether to click or skip their
+            button.
+          </li>
+          <li>
+            If only one player clicks their button, that player loses 1 point.
+          </li>
+          <li>
+            If more than one player clicks their buttons in the same round, no
+            points are lost for anyone.
+          </li>
+          <li>
+            If all players skip, nothing happens, and the points remain
+            unchanged.
+          </li>
+        </ul>
+
+        Winning the Game:<br />
+        <b>The first player to reach 0 points wins the game.</b>
+      </div>
+      <div id="status" class="hidden">
+        <table id="playerstatus" border="1"></table>
+      </div>
     </div>
 
-    <button id="toggleChat" class="hidden"><img src="chat.svg" alt="chat"></button>
+    <button id="toggleChat" class="hidden">
+      <img src="chat.svg" alt="chat" />
+    </button>
     <div id="chat" class="hidden">
-        <b>Chat</b>
-        <ul id="messages"></ul>
-        <form id="chatform" action="">
-            <input type="text" placeholder="Type a message" id="message" maxlength="100" required autocomplete="off">
-            <input type="submit" id="send" value="Send">
-        </form>
+      <b>Chat</b>
+      <ul id="messages"></ul>
+      <form id="chatform" action="">
+        <input
+          type="text"
+          placeholder="Type a message"
+          id="message"
+          maxlength="100"
+          required
+          autocomplete="off"
+        />
+        <input type="submit" id="send" value="Send" />
+      </form>
     </div>
 
     <div id="name">
-        <form id="form" action="">
-            <input type="text" placeholder="Username" id="username" maxlength="27" required autocomplete="off" onchange="trim()">
-            <input type="submit" id="enter" value="Enter">
-        </form>
+      <form id="form" action="">
+        <input
+          type="text"
+          placeholder="Username"
+          id="username"
+          maxlength="27"
+          required
+          autocomplete="off"
+          onchange="trim()"
+        />
+        <input type="submit" id="enter" value="Enter" />
+      </form>
     </div>
 
     <div id="waitingroom" class="hidden">
-        <h1>Click & Skip</h1>
-        <p>Waiting Room</p>
-        <table id="players" border="1">
-            <tr>
-                <th>Players</th>
-            </tr>
-        </table>
+      <h1>Click & Skip</h1>
+      <p>Waiting Room</p>
+      <table id="players" border="1">
+        <tr>
+          <th>Players</th>
+        </tr>
+      </table>
     </div>
     <button id="start" class="hidden">Start</button>
 
     <div id="game" class="hidden">
-        <button id="clickbtn"></button>
+      <button id="clickbtn"></button>
     </div>
 
     <div id="result" class="hidden">
-        <h1 id="winner"></h1>
+      <h1 id="winner"></h1>
     </div>
-    
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        //current status
-        let currentPlayerName = '';
-        let playing = false;
-        //all pages
-        const loginname = document.getElementById('name');
-        const waitingroom = document.getElementById('waitingroom');
-        const game = document.getElementById('game');
-        const result = document.getElementById('result');
-        //sidebar contents
-        const rules = document.getElementById('rules');
-        const statuss = document.getElementById('status');
-        const sidebarcover = document.getElementById('sidebarcover');
-        //toggle sidebar
-        const toggleSidebarBtn = document.getElementById('toggleSidebar');
-        const Sidebar = document.getElementById('sidebar');
-        toggleSidebarBtn.addEventListener('click', () => {
-            if (Sidebar.classList.contains('sidebar-open')) {
-                //close sidebar
-                Sidebar.classList.remove('sidebar-open');
-            } else {
-                //open sidebar
-                Sidebar.classList.add('sidebar-open');
-                Chat.classList.remove('sidebar-open');
-            }
-        });
-        //toggle chat
-        const toggleChatBtn = document.getElementById('toggleChat');
-        const Chat = document.getElementById('chat');
-        toggleChatBtn.addEventListener('click', () => {
-            if (Chat.classList.contains('sidebar-open')) {
-                //close chat
-                Chat.classList.remove('sidebar-open');
-            } else {
-                //open chat
-                Chat.classList.add('sidebar-open');
-                Sidebar.classList.remove('sidebar-open');
-            }
-        });
-        //socket
-        const socket = io();
-        //players table add&remove
-        const playertable = document.getElementById('players');
-        const playerstatus = document.getElementById('playerstatus');
-        socket.on('addplayer', (name) => {
-            //create tr
-            const item = document.createElement('tr');
-            item.id = 'player-row-' + name;
-            if (name == currentPlayerName) {
-                item.style.backgroundColor = '#ddf';
-            }
-            //create td
-            const cell = document.createElement('td');
-            cell.textContent = name;
-            cell.style.cursor = "default";
-            //create td2
-            const cell2 = document.createElement('td');
-            cell2.style.cursor = "default";
-            cell2.id = 'player-status-' + name;
-            cell2.style.display = "none";
-            //create td3
-            const cell3 = document.createElement('td');
-            cell3.style.cursor = "default";
-            cell3.id = 'player-points-' + name;
-            cell3.style.display = "none";
-            //insert elements
-            item.appendChild(cell);
-            item.appendChild(cell2);
-            item.appendChild(cell3);
-            playertable.appendChild(item);
-            const itemClone = item.cloneNode(true);
-            if (itemClone instanceof Element) {
-                itemClone.setAttribute('id', 'player-row-status-' + name);
-            }
-            playerstatus.appendChild(itemClone);
-            //message tagname
-            cell.addEventListener('click', () => {
-                //add name in chat
-                message.value += name;
-                Chat.classList.add('sidebar-open');
-                Sidebar.classList.remove('sidebar-open');
-            });
-        });
-        socket.on('removeplayer', (name) => {
-            const row = document.getElementById('player-row-' + name);
-            if (row) {
-                playertable.removeChild(row);
-                const childNodes = playerstatus.childNodes;
-                for (let i = 0; i < childNodes.length; i++) {
-                    const childNode = childNodes[i];
-                    if (childNode.nodeName === 'TR' && childNode.id === 'player-row-status-' + name) {
-                        playerstatus.removeChild(childNode);
-                        break;
-                    }
-                }
-            }
-        });
-        //login form
-        function trim() {
-            username.value = username.value.trim();
+      //current status
+      let currentPlayerName = "";
+      let playing = false;
+      //all pages
+      const loginname = document.getElementById("name");
+      const waitingroom = document.getElementById("waitingroom");
+      const game = document.getElementById("game");
+      const result = document.getElementById("result");
+      //sidebar contents
+      const rules = document.getElementById("rules");
+      const statuss = document.getElementById("status");
+      const sidebarcover = document.getElementById("sidebarcover");
+      //toggle sidebar
+      const toggleSidebarBtn = document.getElementById("toggleSidebar");
+      const Sidebar = document.getElementById("sidebar");
+      toggleSidebarBtn.addEventListener("click", () => {
+        if (Sidebar.classList.contains("sidebar-open")) {
+          //close sidebar
+          Sidebar.classList.remove("sidebar-open");
+        } else {
+          //open sidebar
+          Sidebar.classList.add("sidebar-open");
+          Chat.classList.remove("sidebar-open");
         }
-        const nameform = document.getElementById('form');
-        const username = document.getElementById('username');
-        nameform.addEventListener('submit', (e) => {
-            e.preventDefault();
-            //set player
-            currentPlayerName = username.value;
-            socket.emit('addplayer', username.value);
-            username.value = '';
-            //hide noexecmsg
-            noexecmsg.classList.add('hidden');
-            noexecmsg.textContent = "";
-            //switch page
-            loginname.style.opacity = "0";
-            waitingroom.classList.remove('hidden');
-            start.classList.remove('hidden');
-            Sidebar.classList.remove('hidden');
-            toggleSidebarBtn.classList.remove('hidden');
-            Chat.classList.remove('hidden');
-            toggleChatBtn.classList.remove('hidden');
+      });
+      //toggle chat
+      const toggleChatBtn = document.getElementById("toggleChat");
+      const Chat = document.getElementById("chat");
+      toggleChatBtn.addEventListener("click", () => {
+        if (Chat.classList.contains("sidebar-open")) {
+          //close chat
+          Chat.classList.remove("sidebar-open");
+        } else {
+          //open chat
+          Chat.classList.add("sidebar-open");
+          Sidebar.classList.remove("sidebar-open");
+        }
+      });
+      //socket
+      const socket = io();
+      //players table add&remove
+      const playertable = document.getElementById("players");
+      const playerstatus = document.getElementById("playerstatus");
+      socket.on("addplayer", (name) => {
+        //create tr
+        const item = document.createElement("tr");
+        item.id = "player-row-" + name;
+        if (name == currentPlayerName) {
+          item.style.backgroundColor = "#ddf";
+        }
+        //create td
+        const cell = document.createElement("td");
+        cell.textContent = name;
+        cell.style.cursor = "default";
+        //create td2
+        const cell2 = document.createElement("td");
+        cell2.style.cursor = "default";
+        cell2.id = "player-status-" + name;
+        cell2.style.display = "none";
+        //create td3
+        const cell3 = document.createElement("td");
+        cell3.style.cursor = "default";
+        cell3.id = "player-points-" + name;
+        cell3.style.display = "none";
+        //insert elements
+        item.appendChild(cell);
+        item.appendChild(cell2);
+        item.appendChild(cell3);
+        playertable.appendChild(item);
+        const itemClone = item.cloneNode(true);
+        if (itemClone instanceof Element) {
+          itemClone.setAttribute("id", "player-row-status-" + name);
+        }
+        playerstatus.appendChild(itemClone);
+        //message tagname
+        cell.addEventListener("click", () => {
+          //add name in chat
+          message.value += name;
+          Chat.classList.add("sidebar-open");
+          Sidebar.classList.remove("sidebar-open");
+        });
+      });
+      socket.on("removeplayer", (name) => {
+        const row = document.getElementById("player-row-" + name);
+        if (row) {
+          playertable.removeChild(row);
+          const childNodes = playerstatus.childNodes;
+          for (let i = 0; i < childNodes.length; i++) {
+            const childNode = childNodes[i];
+            if (
+              childNode.nodeName === "TR" &&
+              childNode.id === "player-row-status-" + name
+            ) {
+              playerstatus.removeChild(childNode);
+              break;
+            }
+          }
+        }
+      });
+      //login form
+      function trim() {
+        username.value = username.value.trim();
+      }
+      const nameform = document.getElementById("form");
+      const username = document.getElementById("username");
+      nameform.addEventListener("submit", (e) => {
+        e.preventDefault();
+        //set player
+        currentPlayerName = username.value;
+        socket.emit("addplayer", username.value);
+        username.value = "";
+        //hide noexecmsg
+        noexecmsg.classList.add("hidden");
+        noexecmsg.textContent = "";
+        //switch page
+        loginname.style.opacity = "0";
+        waitingroom.classList.remove("hidden");
+        start.classList.remove("hidden");
+        Sidebar.classList.remove("hidden");
+        toggleSidebarBtn.classList.remove("hidden");
+        Chat.classList.remove("hidden");
+        toggleChatBtn.classList.remove("hidden");
+        setTimeout(() => {
+          //set animation
+          loginname.classList.add("hidden");
+          start.style.transition = "all 0.5s";
+          toggleSidebarBtn.style.transition = "all 0.5s";
+          Sidebar.style.transition = "all 0.5s";
+          toggleChatBtn.style.transition = "all 0.5s";
+          Chat.style.transition = "all 0.5s";
+        }, 500);
+      });
+      //error handler
+      const noexecmsg = document.getElementById("noexec");
+      socket.on("noexec", (msg, type) => {
+        //set message
+        noexecmsg.textContent = msg;
+        noexecmsg.classList.remove("hidden");
+        noexecmsg.style.color = "red";
+        setTimeout(() => {
+          noexecmsg.style.color = "black";
+          if (type == "login") {
+            //set animation
+            loginname.classList.remove("hidden");
+            start.style.transition = "all 0.5s, transform 0s";
+            toggleSidebarBtn.style.transition = "all 0.5s, transform 0s";
+            Sidebar.style.transition = "all 0.5s, transform 0s";
+            toggleChatBtn.style.transition = "all 0.5s, transform 0s";
+            Chat.style.transition = "all 0.5s, transform 0s";
+          }
+        }, 500);
+        if (type == "login") {
+          //reset nologin
+          loginname.style.opacity = "1";
+          waitingroom.classList.add("hidden");
+          start.classList.add("hidden");
+          Sidebar.classList.add("hidden");
+          toggleSidebarBtn.classList.add("hidden");
+          Chat.classList.add("hidden");
+          toggleChatBtn.classList.add("hidden");
+        }
+      });
+      //chat handler
+      const message = document.getElementById("message");
+      document.getElementById("chatform").addEventListener("submit", (e) => {
+        e.preventDefault();
+        socket.emit("chatmessage", message.value);
+        message.value = "";
+      });
+      const messages = document.getElementById("messages");
+      socket.on("chatmessage", (msg, player) => {
+        //create li
+        const item = document.createElement("li");
+        item.textContent = `${player}: ${msg}`;
+        //insert element
+        messages.appendChild(item);
+        //scroll bottom chat
+        Chat.scrollTop = Chat.scrollHeight;
+        messages.scrollTop = messages.scrollHeight;
+      });
+      //start game
+      const start = document.getElementById("start");
+      start.addEventListener("click", (e) => {
+        e.preventDefault();
+        socket.emit("startgame");
+      });
+      socket.on("startgame", () => {
+        playing = true;
+        socket.emit("togglejoin", "off");
+        if (currentPlayerName != "") {
+          //hide noexecmsg
+          noexecmsg.classList.add("hidden");
+          noexecmsg.textContent = "";
+          //set animation
+          rules.style.transition = "all 0.5s, transform 0s";
+          statuss.style.transition = "all 0.5s, transform 0s";
+          game.style.transition = "all 0.5s, transform 0s";
+          start.style.transition = "all 0.5s, transform 0s";
+          waitingroom.style.transition = "all 0.5s, transform 0s";
+          //hide
+          start.style.opacity = "0";
+          waitingroom.style.opacity = "0";
+          rules.style.opacity = "0";
+          //show
+          statuss.classList.remove("hidden");
+          game.classList.remove("hidden");
+          game.style.opacity = "1";
+          if (Sidebar.classList.contains("sidebar-open")) {
+            //show sidebarcover
+            sidebarcover.style.transform = "translateX(0)";
+            sidebarcover.style.opacity = "1";
+          }
+          setTimeout(() => {
+            statuss.style.opacity = "1";
+            Sidebar.scrollTop = 0;
+            //hide
+            rules.classList.add("hidden");
+            waitingroom.classList.add("hidden");
+            start.classList.add("hidden");
+            //set animation
+            rules.style.transition = "all 0.5s";
+            statuss.style.transition = "all 0.5s";
+            game.style.transition = "all 0.5s";
+            start.style.transition = "all 0.5s";
+            waitingroom.style.transition = "all 0.5s";
+            //hide sidebarcover
+            sidebarcover.style.opacity = "0";
+            Sidebar.style.overflowY = "hidden";
             setTimeout(() => {
-                //set animation
-                loginname.classList.add('hidden');
-                start.style.transition = "all 0.5s";
-                toggleSidebarBtn.style.transition = "all 0.5s";
-                Sidebar.style.transition = "all 0.5s";
-                toggleChatBtn.style.transition = "all 0.5s";
-                Chat.style.transition = "all 0.5s";
-            }, 500)
-        });
-        //error handler
-        const noexecmsg = document.getElementById('noexec');
-        socket.on('noexec', (msg, type) => {
-            //set message
-            noexecmsg.textContent = msg;
-            noexecmsg.classList.remove('hidden');
-            noexecmsg.style.color = "red";
+              sidebarcover.style.transform = "translateX(-100cm)";
+            }, 500);
+          }, 500);
+        }
+      });
+      socket.on("countdown", (number) => {
+        if (playing) {
+          //countdown
+          noexecmsg.classList.remove("hidden");
+          noexecmsg.textContent = number;
+          for (let i = number + 1; i > 1; i--) {
             setTimeout(() => {
-                noexecmsg.style.color = "black";
-                if (type == "login") {
-                    //set animation
-                    loginname.classList.remove('hidden');
-                    start.style.transition = "all 0.5s, transform 0s";
-                    toggleSidebarBtn.style.transition = "all 0.5s, transform 0s";
-                    Sidebar.style.transition = "all 0.5s, transform 0s";
-                    toggleChatBtn.style.transition = "all 0.5s, transform 0s";
-                    Chat.style.transition = "all 0.5s, transform 0s";
-                }
-            }, 500)
-            if (type == "login") {
-                //reset nologin
-                loginname.style.opacity = "1";
-                waitingroom.classList.add('hidden');
-                start.classList.add('hidden');
-                Sidebar.classList.add('hidden');
-                toggleSidebarBtn.classList.add('hidden');
-                Chat.classList.add('hidden');
-                toggleChatBtn.classList.add('hidden');
-            }
-        });
-        //chat handler
-        const message = document.getElementById('message');
-        document.getElementById('chatform').addEventListener('submit', (e) => {
-            e.preventDefault();
-            socket.emit('chatmessage', message.value);
-            message.value = '';
-        });
-        const messages = document.getElementById('messages');
-        socket.on('chatmessage', (msg, player) => {
-            //create li
-            const item = document.createElement('li');
-            item.textContent = `${player}: ${msg}`;
-            //insert element
-            messages.appendChild(item);
-            //scroll bottom chat
-            Chat.scrollTop = Chat.scrollHeight;
-            messages.scrollTop = messages.scrollHeight;
-        });
-        //start game
-        const start = document.getElementById('start');
-        start.addEventListener('click', (e) => {
-            e.preventDefault();
-            socket.emit('startgame');
-        });
-        socket.on('startgame', () => {
-            playing = true;
-            socket.emit('togglejoin', 'off');
-            if (currentPlayerName != "") {
-                //hide noexecmsg
-                noexecmsg.classList.add('hidden');
-                noexecmsg.textContent = "";
-                //set animation
-                rules.style.transition = "all 0.5s, transform 0s";
-                statuss.style.transition = "all 0.5s, transform 0s";
-                game.style.transition = "all 0.5s, transform 0s";
-                start.style.transition = "all 0.5s, transform 0s";
-                waitingroom.style.transition = "all 0.5s, transform 0s";
-                //hide
-                start.style.opacity = "0";
-                waitingroom.style.opacity = "0";
-                rules.style.opacity = "0";
-                //show
-                statuss.classList.remove('hidden');
-                game.classList.remove('hidden');
-                game.style.opacity = "1";
-                if (Sidebar.classList.contains('sidebar-open')) {
-                    //show sidebarcover
-                    sidebarcover.style.transform = "translateX(0)";
-                    sidebarcover.style.opacity = "1";
-                }
-                setTimeout(() => {
-                    statuss.style.opacity = "1";
-                    Sidebar.scrollTop = 0;
-                    //hide
-                    rules.classList.add('hidden');
-                    waitingroom.classList.add('hidden');
-                    start.classList.add('hidden');
-                    //set animation
-                    rules.style.transition = "all 0.5s";
-                    statuss.style.transition = "all 0.5s";
-                    game.style.transition = "all 0.5s";
-                    start.style.transition = "all 0.5s";
-                    waitingroom.style.transition = "all 0.5s";
-                    //hide sidebarcover
-                    sidebarcover.style.opacity = "0";
-                    Sidebar.style.overflowY = "hidden";
-                    setTimeout(() => {
-                        sidebarcover.style.transform = "translateX(-100cm)";
-                    }, 500)
-                }, 500)
-            }
-        })
-        socket.on('countdown', (number) => {
-            if (playing) {
-                //countdown
-                noexecmsg.classList.remove('hidden');
-                noexecmsg.textContent = number;
-                for(let i=number+1; i>1; i--) {
-                    setTimeout(() => {
-                        noexecmsg.textContent = i - 1;
-                    }, 1000 * (number - i + 1))
-                }
-            }
-        })
-        const clickbtn = document.getElementById('clickbtn')
-        clickbtn.addEventListener('click', () => {
-            socket.emit('clickbtn', currentPlayerName);
-        })
-        socket.on('showstatus', (name, status, point) => {
-            if (playing) {
-                //show status
-                const showw = document.getElementById('player-status-' + name);
-                showw.style.display = "block";
-                if(status == 1) {
-                    showw.textContent = "clicked";
-                } else if(status == 0) {
-                    showw.textContent = "skip";
-                }
-                //show points
-                const showpoint = document.getElementById('player-points-' + name);
-                showpoint.style.display = "block";
-                showpoint.textContent = point;
-            }
-        })
-        socket.on('hidestatus', () => {
-            if (playing) {
-                //hide status
-                const showw = document.querySelectorAll('[id^="player-status-"]');
-                showw.forEach((element) => {
-                    element.style.display = "none";
-                    element.textContent = "";
-                });
-                //hide points
-                const showpoint = document.querySelectorAll('[id^="player-points-"]');
-                showpoint.forEach((element) => {
-                    element.style.display = "none";
-                    element.textContent = "";
-                });
-            }
-        })
-        socket.on('loop', () => {
-            socket.emit('loop');
-        })
-        //result
-        socket.on('result', (name) => {
-            playing = false;
-            game.style.transition = "all 0.5s, transform 0s";
-            game.style.opacity = "0";
-            noexecmsg.classList.add('hidden');
-            result.classList.remove('hidden');
-            result.style.opacity = "1";
-            document.getElementById('winner').textContent = `${name} Wins!`;
+              noexecmsg.textContent = i - 1;
+            }, 1000 * (number - i + 1));
+          }
+        }
+      });
+      const clickbtn = document.getElementById("clickbtn");
+      clickbtn.addEventListener("click", () => {
+        socket.emit("clickbtn", currentPlayerName);
+      });
+      socket.on("showstatus", (name, status, point) => {
+        if (playing) {
+          //show status
+          const showw = document.getElementById("player-status-" + name);
+          showw.style.display = "block";
+          if (status == 1) {
+            showw.textContent = "clicked";
+          } else if (status == 0) {
+            showw.textContent = "skip";
+          }
+          //show points
+          const showpoint = document.getElementById("player-points-" + name);
+          showpoint.style.display = "block";
+          showpoint.textContent = point;
+        }
+      });
+      socket.on("hidestatus", () => {
+        if (playing) {
+          //hide status
+          const showw = document.querySelectorAll('[id^="player-status-"]');
+          showw.forEach((element) => {
+            element.style.display = "none";
+            element.textContent = "";
+          });
+          //hide points
+          const showpoint = document.querySelectorAll('[id^="player-points-"]');
+          showpoint.forEach((element) => {
+            element.style.display = "none";
+            element.textContent = "";
+          });
+        }
+      });
+      socket.on("loop", () => {
+        socket.emit("loop");
+      });
+      //result
+      socket.on("result", (name) => {
+        playing = false;
+        game.style.transition = "all 0.5s, transform 0s";
+        game.style.opacity = "0";
+        noexecmsg.classList.add("hidden");
+        result.classList.remove("hidden");
+        result.style.opacity = "1";
+        document.getElementById("winner").textContent = `${name} Wins!`;
+        setTimeout(() => {
+          socket.emit("endgame");
+        }, 3000);
+      });
+      //end game
+      socket.on("endgame", () => {
+        playing = false;
+        socket.emit("togglejoin", "on");
+        if (currentPlayerName != "") {
+          //hide status
+          const showw = document.querySelectorAll('[id^="player-status-"]');
+          showw.forEach((element) => {
+            element.style.display = "none";
+            element.textContent = "";
+          });
+          //hide points
+          const showpoint = document.querySelectorAll('[id^="player-points-"]');
+          showpoint.forEach((element) => {
+            element.style.display = "none";
+            element.textContent = "";
+          });
+          //set animation
+          rules.style.transition = "all 0.5s, transform 0s";
+          statuss.style.transition = "all 0.5s, transform 0s";
+          game.style.transition = "all 0.5s, transform 0s";
+          start.style.transition = "all 0.5s, transform 0s";
+          waitingroom.style.transition = "all 0.5s, transform 0s";
+          //show
+          start.classList.remove("hidden");
+          start.style.opacity = "1";
+          waitingroom.classList.remove("hidden");
+          waitingroom.style.opacity = "1";
+          rules.classList.remove("hidden");
+          //hide
+          statuss.style.opacity = "0";
+          game.style.opacity = "0";
+          result.classList.add("hidden");
+          noexecmsg.classList.add("hidden");
+          if (Sidebar.classList.contains("sidebar-open")) {
+            //show sidebarcover
+            sidebarcover.style.transform = "translateX(0)";
+            sidebarcover.style.opacity = "1";
+          }
+          setTimeout(() => {
+            rules.style.opacity = "1";
+            //hide
+            statuss.classList.add("hidden");
+            game.classList.add("hidden");
+            //set animation
+            rules.style.transition = "all 0.5s";
+            statuss.style.transition = "all 0.5s";
+            game.style.transition = "all 0.5s";
+            start.style.transition = "all 0.5s";
+            waitingroom.style.transition = "all 0.5s";
+            //hide sidebarcover
+            sidebarcover.style.opacity = "0";
+            Sidebar.style.overflowY = "auto";
+            //socket.emit('result');
             setTimeout(() => {
-                socket.emit('endgame');
-            }, 3000)
-        });
-        //end game
-        socket.on('endgame', () => {
-            playing = false;
-            socket.emit('togglejoin', 'on');
-            if (currentPlayerName != "") {
-                //hide status
-                const showw = document.querySelectorAll('[id^="player-status-"]');
-                showw.forEach((element) => {
-                    element.style.display = "none";
-                    element.textContent = "";
-                });
-                //hide points
-                const showpoint = document.querySelectorAll('[id^="player-points-"]');
-                showpoint.forEach((element) => {
-                    element.style.display = "none";
-                    element.textContent = "";
-                });
-                //set animation
-                rules.style.transition = "all 0.5s, transform 0s";
-                statuss.style.transition = "all 0.5s, transform 0s";
-                game.style.transition = "all 0.5s, transform 0s";
-                start.style.transition = "all 0.5s, transform 0s";
-                waitingroom.style.transition = "all 0.5s, transform 0s";
-                //show
-                start.classList.remove('hidden');
-                start.style.opacity = "1";
-                waitingroom.classList.remove('hidden');
-                waitingroom.style.opacity = "1";
-                rules.classList.remove('hidden');
-                //hide
-                statuss.style.opacity = "0";
-                game.style.opacity = "0";
-                result.classList.add('hidden');
-                noexecmsg.classList.add('hidden');
-                if (Sidebar.classList.contains('sidebar-open')) {
-                    //show sidebarcover
-                    sidebarcover.style.transform = "translateX(0)";
-                    sidebarcover.style.opacity = "1";
-                }
-                setTimeout(() => {
-                    rules.style.opacity = "1";
-                    //hide
-                    statuss.classList.add('hidden');
-                    game.classList.add('hidden');
-                    //set animation
-                    rules.style.transition = "all 0.5s";
-                    statuss.style.transition = "all 0.5s";
-                    game.style.transition = "all 0.5s";
-                    start.style.transition = "all 0.5s";
-                    waitingroom.style.transition = "all 0.5s";
-                    //hide sidebarcover
-                    sidebarcover.style.opacity = "0";
-                    Sidebar.style.overflowY = "auto";
-                    //socket.emit('result');
-                    setTimeout(() => {
-                        sidebarcover.style.transform = "translateX(-100cm)";
-                    }, 500)
-                }, 500)
-            }
-        })
+              sidebarcover.style.transform = "translateX(-100cm)";
+            }, 500);
+          }, 500);
+        }
+      });
     </script>
-</body>
-
+  </body>
 </html>
